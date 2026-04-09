@@ -1,98 +1,236 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Promocode Generator API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+REST API для генерации и активации промокодов, построенный на [NestJS](https://nestjs.com/) с использованием [Prisma ORM](https://www.prisma.io/) и PostgreSQL.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Содержание
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- [Описание](#описание)
+- [Стек технологий](#стек-технологий)
+- [Структура проекта](#структура-проекта)
+- [Модели данных](#модели-данных)
+- [API](#api)
+- [Переменные окружения](#переменные-окружения)
+- [Запуск проекта](#запуск-проекта)
+- [Тесты](#тесты)
 
-## Project setup
+---
 
-```bash
-$ npm install
+## Описание
+
+Сервис предоставляет API для управления промокодами и пользователями:
+
+- Создание промокодов с указанием скидки и срока действия.
+- Активация промокода конкретным пользователем (один промокод — одна активация).
+- Управление пользователями (CRUD).
+- Автоматическая валидация входных данных через `class-validator`.
+- Swagger-документация доступна по адресу `/api`.
+
+---
+
+## Стек технологий
+
+| Компонент       | Технология                          |
+|-----------------|-------------------------------------|
+| Framework       | NestJS 11                           |
+| ORM             | Prisma 7                            |
+| База данных     | PostgreSQL 17                       |
+| Валидация       | class-validator / class-transformer |
+| Документация    | Swagger / OpenAPI                   |
+| Контейнеризация | Docker / Docker Compose             |
+| Язык            | TypeScript 5                        |
+
+---
+
+## Структура проекта
+
+```
+src/
+├── activation/       # Модуль активаций промокодов
+├── exceptions/       # Кастомные исключения
+├── prisma/           # Модуль подключения к БД
+├── promocode/        # Модуль промокодов (контроллер, сервис, DTO)
+│   └── dto/
+│       └── promocode/
+│           ├── create.ts    # DTO создания промокода
+│           └── activate.ts  # DTO активации промокода
+├── user/             # Модуль пользователей (контроллер, сервис, DTO)
+├── app.module.ts     # Корневой модуль
+├── main.ts           # Точка входа
+└── http-exception.filter.ts  # Глобальный фильтр ошибок
+prisma/
+└── schema.prisma     # Схема базы данных
 ```
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+## Модели данных
 
-# watch mode
-$ npm run start:dev
+### User
 
-# production mode
-$ npm run start:prod
+| Поле        | Тип      | Описание              |
+|-------------|----------|-----------------------|
+| `id`        | UUID     | Первичный ключ        |
+| `email`     | String   | Уникальный email      |
+| `name`      | String?  | Имя (опционально)     |
+| `createdAt` | DateTime | Дата создания         |
+| `updatedAt` | DateTime | Дата обновления       |
+
+### Promocode
+
+| Поле        | Тип      | Описание              |
+|-------------|----------|-----------------------|
+| `id`        | UUID     | Первичный ключ        |
+| `code`      | String   | Уникальный код        |
+| `discount`  | Float    | Размер скидки         |
+| `expiresAt` | DateTime | Срок действия         |
+| `createdAt` | DateTime | Дата создания         |
+| `updatedAt` | DateTime | Дата обновления       |
+
+### Activation
+
+| Поле          | Тип      | Описание                    |
+|---------------|----------|-----------------------------|
+| `id`          | UUID     | Первичный ключ              |
+| `promocodeId` | UUID     | Ссылка на промокод (1-к-1)  |
+| `userId`      | UUID     | Ссылка на пользователя      |
+| `createdAt`   | DateTime | Дата активации              |
+
+---
+
+## API
+
+Базовый путь: `/api/v1`  
+Swagger UI: `http://localhost:3000/api`
+
+### Промокоды
+
+| Метод | Путь                                 | Описание                 |
+|-------|--------------------------------------|--------------------------|
+| GET   | `/api/v1/promocodes`                 | Получить все промокоды   |
+| POST  | `/api/v1/promocodes`                 | Создать промокод         |
+| POST  | `/api/v1/promocodes/:id/activations` | Активировать промокод    |
+
+**Создать промокод** `POST /api/v1/promocodes`
+```json
+{
+  "code": "SUMMER25",
+  "discount": 25,
+  "expiredAt": "2026-12-31T23:59:59Z"
+}
 ```
 
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+**Активировать промокод** `POST /api/v1/promocodes/:id/activations`
+```json
+{
+  "userId": "uuid-пользователя"
+}
 ```
 
-## Deployment
+### Пользователи
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+| Метод  | Путь                  | Описание                      |
+|--------|-----------------------|-------------------------------|
+| GET    | `/api/v1/users`       | Получить всех пользователей   |
+| GET    | `/api/v1/users/:id`   | Получить пользователя по ID   |
+| POST   | `/api/v1/users`       | Создать пользователя          |
+| PATCH  | `/api/v1/users/:id`   | Обновить пользователя         |
+| DELETE | `/api/v1/users/:id`   | Удалить пользователя          |
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+**Создать пользователя** `POST /api/v1/users`
+```json
+{
+  "email": "user@example.com",
+  "name": "Иван"
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## Переменные окружения
 
-Check out a few resources that may come in handy when working with NestJS:
+Создайте файл `.env` в корне проекта:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```env
+# Строка подключения к БД
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5434/DB_NAME"
 
-## Support
+# Параметры PostgreSQL (используются в docker-compose)
+POSTGRES_USER=your_user
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=your_db
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Порты (опционально, есть значения по умолчанию)
+DB_PORT=5434
+PORT=3000
+```
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Запуск проекта
 
-## License
+### Требования
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- [Node.js](https://nodejs.org/) >= 20
+- [Docker](https://www.docker.com/) и Docker Compose
+
+### 1. Установить зависимости
+
+```bash
+npm install
+```
+
+### 2. Создать файл `.env`
+
+Создайте `.env` в корне проекта и заполните переменные (см. раздел [Переменные окружения](#переменные-окружения)).
+
+### 3. Запустить базу данных через Docker
+
+```bash
+docker compose up -d
+```
+
+### 4. Применить миграции базы данных
+
+```bash
+npm run migrate
+```
+
+### 5. Сгенерировать Prisma Client
+
+```bash
+npm run generate
+```
+
+### 6. Запустить приложение
+
+```bash
+# Режим разработки (с hot-reload)
+npm run start:dev
+
+# Обычный запуск
+npm run start
+
+# Production-режим
+npm run build
+npm run start:prod
+```
+
+Приложение будет доступно по адресу: **http://localhost:3000**  
+Swagger UI: **http://localhost:3000/api**
+
+---
+
+## Тесты
+
+```bash
+# Unit-тесты
+npm run test
+
+# E2E-тесты
+npm run test:e2e
+
+# Покрытие кода
+npm run test:cov
+```
