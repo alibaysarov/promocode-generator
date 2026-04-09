@@ -5,20 +5,20 @@ import { ActivateDto } from './dto/promocode/activate';
 
 @Controller('promocodes')
 export class PromocodeController {
-    constructor(private readonly promocodeService: PromocodeService) { }
+  constructor(private readonly promocodeService: PromocodeService) {}
 
-    @Get()
-    getAll() {
-        return this.promocodeService.getAll();
-    }
+  @Get()
+  getAll() {
+    return this.promocodeService.getAll();
+  }
 
-    @Post()
-    create(@Body() dto: PromocodeCreateDto) {
-        return this.promocodeService.create(dto);
-    }
+  @Post()
+  create(@Body() dto: PromocodeCreateDto) {
+    return this.promocodeService.create(dto);
+  }
 
-    @Post(':id/activations')
-    activate(@Param('id') id: string, @Body() dto: ActivateDto) {
-        return this.promocodeService.activate(id, dto);
-    }
+  @Post(':id/activations')
+  activate(@Param('id') id: string, @Body() dto: ActivateDto) {
+    return this.promocodeService.activate(id, dto);
+  }
 }

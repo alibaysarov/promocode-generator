@@ -3,8 +3,8 @@ import { ActivationService } from './activation.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
-    imports: [PrismaModule],
-    providers: [ActivationService],
-    exports: [ActivationService],
+  imports: [PrismaModule],
+  providers: [ActivationService],
+  exports: [ActivationService],
 })
 export class ActivationModule {}

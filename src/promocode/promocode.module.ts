@@ -5,8 +5,8 @@ import { PromocodeController } from './promocode.controller';
 import { PromocodeService } from './promocode.service';
 
 @Module({
-    controllers: [PromocodeController],
-    providers: [PromocodeService],
-    imports: [PrismaModule, ActivationModule],
+  controllers: [PromocodeController],
+  providers: [PromocodeService],
+  imports: [PrismaModule, ActivationModule],
 })
 export class PromocodeModule {}

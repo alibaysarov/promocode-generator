@@ -1,11 +1,8 @@
-import { IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class ActivateDto {
-
-    @IsNotEmpty()
-    @IsString()
-    @IsUUID()
-    public userId!: string;
-
-    
+  @IsNotEmpty()
+  @IsString()
+  @IsUUID()
+  public userId!: string;
 }

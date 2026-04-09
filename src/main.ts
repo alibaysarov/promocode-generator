@@ -4,9 +4,7 @@ import { HttpExceptionFilter } from './http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 
-
-
-function configSwagger(app:INestApplication<any>) {
+function configSwagger(app: INestApplication<any>) {
   const config = new DocumentBuilder()
     .setTitle('Promocode generator API')
     .setDescription('The Promocode generator API description')
@@ -22,7 +20,6 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-
 
   configSwagger(app);
 

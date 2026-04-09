@@ -1,5 +1,10 @@
-
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { appendFileSync } from 'fs';
 import { join } from 'path';
@@ -26,7 +31,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const body =
       exception instanceof HttpException
         ? exception.getResponse()
-        : { statusCode: status, error: 'Internal Server Error', message: 'An unexpected error occurred' };
+        : {
+            statusCode: status,
+            error: 'Internal Server Error',
+            message: 'An unexpected error occurred',
+          };
 
     const timestamp = new Date().toISOString();
 
